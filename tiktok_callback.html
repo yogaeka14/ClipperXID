@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Callback TikTok - Clipper</title>
+<style>
+  :root{color-scheme:light dark;--bg:#fff;--fg:#14161b;--mut:#5b6270;--card:#f3f5f9;--ac:#fe2c55}
+  @media (prefers-color-scheme:dark){:root{--bg:#0f1115;--fg:#eef0f4;--mut:#9aa3b2;--card:#1b1e25}}
+  *{box-sizing:border-box}
+  body{margin:0;padding:20px;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;max-width:560px;margin-inline:auto}
+  h1{font-size:20px;margin:8px 0 12px}
+  .card{background:var(--card);border-radius:12px;padding:14px;margin:12px 0;word-break:break-all}
+  .lbl{color:var(--mut);font-size:13px;margin-bottom:4px}
+  code{font:14px ui-monospace,Menlo,monospace}
+  button{width:100%;padding:12px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:600 16px system-ui;margin-top:8px}
+  .err{color:#d33}
+  .ok{color:#1a9d55}
+  p{color:var(--mut)}
+</style>
+</head>
+<body>
+<h1>Login TikTok</h1>
+<div id="out"></div>
+<p>Halaman ini hanya menampilkan kode dari alamatnya. Tidak ada data yang dikirim ke mana pun. Salin kode, kembali ke Termux, lalu tempel.</p>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var out = document.getElementById('out');
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function card(label, value, id) {
+    return '<div class="card"><div class="lbl">' + label + '</div><code id="' + id + '">' + esc(value) + '</code></div>';
+  }
+  var code = q.get('code'), err = q.get('error');
+  if (err) {
+    out.innerHTML = '<p class="err"><b>Login ditolak atau gagal.</b></p>' +
+      card('error', err, 'e') + (q.get('error_description') ? card('keterangan', q.get('error_description'), 'd') : '');
+  } else if (code) {
+    out.innerHTML = '<p class="ok"><b>Izin diberikan.</b> Salin kode di bawah.</p>' +
+      card('kode', code, 'c') +
+      '<button id="b1">Salin kode</button>' +
+      '<button id="b2" style="background:#444">Salin seluruh alamat</button>';
+    function copy(text, btn) {
+      var done = function () { btn.textContent = 'Tersalin'; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { window.prompt('Salin teks ini:', text); });
+      } else { window.prompt('Salin teks ini:', text); }
+    }
+    document.getElementById('b1').onclick = function () { copy(code, this); };
+    document.getElementById('b2').onclick = function () { copy(location.href, this); };
+  } else {
+    out.innerHTML = '<p>Belum ada kode. Halaman ini dibuka otomatis oleh TikTok setelah kamu memberi izin lewat <code>python clipper.py --tiktok-setup</code>.</p>';
+  }
+})();
+</script>
+</body>
+</html>
